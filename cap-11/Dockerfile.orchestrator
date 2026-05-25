@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copiar e instalar dependencias
+COPY pyproject.toml .
+RUN pip install --no-cache-dir \
+    "langgraph>=0.3" \
+    "langchain-anthropic>=0.3" \
+    "langchain-mcp-adapters>=0.1" \
+    "langfuse>=2.0" \
+    "fastapi>=0.115" \
+    "uvicorn>=0.30" \
+    "python-dotenv>=1.0"
+
+# Copiar codigo
+COPY src/ ./src/
+
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+EXPOSE 8000
+
+CMD ["uvicorn", "src.orchestrator.api:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.env
+.env.production
+*.egg-info/
+dist/
+build/
+
+# Banco de dados de cache
+.langchain.db
+
+# Relatorios gerados
+relatorio.md
+
+# IDEs
+.vscode/
+.idea/
+
+# Docker
+*.log

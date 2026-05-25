@@ -1,0 +1,23 @@
+FROM python:3.11-slim AS base
+
+WORKDIR /app
+
+# Instalar dependencias do sistema
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copiar dependencias
+COPY pyproject.toml .
+RUN pip install --no-cache-dir fastmcp httpx python-dotenv pydantic
+
+# Copiar codigo
+COPY src/ ./src/
+
+# Health check padrao para todos os MCP servers
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:${PORT}/health || exit 1
+
+# Variavel de porta (sobrescrita por cada servico)
+ENV PORT=8001
+
+# Comando padrao (sobrescrito por cada servico no docker-compose)
+CMD ["python", "-m", "src.agents.researcher.mcp_server.server"]

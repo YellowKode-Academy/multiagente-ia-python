@@ -1,0 +1,15 @@
+# docker-compose.prod.yml - override para producao no Railway
+# Use: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+version: "3.9"
+
+services:
+  orchestrator:
+    environment:
+      RESEARCH_MCP_URL: https://research-mcp.${RAILWAY_PROJECT_NAME}.up.railway.app/mcp
+      ANALYSIS_MCP_URL: https://analysis-mcp.${RAILWAY_PROJECT_NAME}.up.railway.app/mcp
+      REPORT_MCP_URL: https://report-mcp.${RAILWAY_PROJECT_NAME}.up.railway.app/mcp
+      LANGFUSE_HOST: https://langfuse.${RAILWAY_PROJECT_NAME}.up.railway.app
+
+  langfuse:
+    environment:
+      NEXTAUTH_URL: https://langfuse.${RAILWAY_PROJECT_NAME}.up.railway.app
