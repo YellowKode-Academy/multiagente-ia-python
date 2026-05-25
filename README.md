@@ -47,6 +47,15 @@ LANGFUSE_SECRET_KEY=sk-lf-...    # necessário a partir do cap-09
 RAILWAY_TOKEN=...                 # necessário no cap-12
 ```
 
+## Onde obter as chaves
+
+| Variável | Onde criar | Plano gratuito |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) | Não (pay-as-you-go) |
+| `TAVILY_API_KEY` | [app.tavily.com](https://app.tavily.com/home) | Sim (1.000 req/mês) |
+| `LANGFUSE_PUBLIC_KEY` / `SECRET_KEY` | [cloud.langfuse.com](https://cloud.langfuse.com) → Settings → API Keys | Sim |
+| `RAILWAY_TOKEN` | [railway.app/account/tokens](https://railway.app/account/tokens) | Sim (trial $5) |
+
 ## Estrutura por capítulo
 
 | Capítulo | Diretório | O que você constrói |
