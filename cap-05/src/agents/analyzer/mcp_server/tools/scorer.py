@@ -58,9 +58,9 @@ def score_competitor(
     total_score = min(100, presence_score + diff_score + maturity_score)
 
     # Threat level baseado no score
-    if total_score >= 70:
+    if total_score >= 60:
         threat_level = "alta"
-    elif total_score >= 45:
+    elif total_score >= 35:
         threat_level = "media"
     else:
         threat_level = "baixa"
