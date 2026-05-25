@@ -1,73 +1,52 @@
 # tests/integration/test_researcher.py
 import pytest
 import json
-import respx
-import httpx
-from src.agents.researcher.agent import researcher_node_async
-
-
-@pytest.fixture
-def mock_research_mcp():
-    """Mocka o research-mcp-server para retornar dados fixos."""
-    tools_response = {
-        "tools": [
-            {
-                "name": "search_competitors_tool",
-                "description": "Busca concorrentes em um mercado",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "market": {"type": "string"},
-                        "location": {"type": "string"},
-                    }
-                }
-            }
-        ]
-    }
-
-    search_result = {
-        "result": json.dumps({
-            "market": "CRM",
-            "location": "Brasil",
-            "results": [
-                {"title": "Salesforce Brasil", "url": "salesforce.com", "snippet": "CRM lider..."},
-                {"title": "Pipedrive PT", "url": "pipedrive.com", "snippet": "CRM para vendas..."},
-            ]
-        })
-    }
-
-    with respx.mock:
-        # Mock para listagem de ferramentas (GET /mcp)
-        respx.get("http://localhost:8001/mcp").mock(
-            return_value=httpx.Response(200, json=tools_response)
-        )
-        # Mock para chamada de ferramenta (POST /mcp)
-        respx.post("http://localhost:8001/mcp").mock(
-            return_value=httpx.Response(200, json=search_result)
-        )
-        yield
+from unittest.mock import patch, AsyncMock, MagicMock
+from langchain_core.messages import AIMessage
 
 
 @pytest.mark.asyncio
-async def test_researcher_returns_structured_data(mock_research_mcp):
+async def test_researcher_returns_structured_data():
     """Researcher deve retornar research_result estruturado."""
+    mock_result_content = json.dumps({
+        "competitors": [
+            {"name": "Salesforce", "differentiator": "enterprise CRM", "market_presence": "alta"},
+            {"name": "Pipedrive", "differentiator": "sales pipeline", "market_presence": "media"},
+        ],
+        "market_trends": ["crescimento de 18% ao ano", "adocao por PMEs"],
+        "data_sources": ["IDC Brasil 2025", "Gartner Magic Quadrant"]
+    })
+
+    mock_agent_result = {
+        "messages": [AIMessage(content=mock_result_content)]
+    }
+
+    mock_tools = [MagicMock(name="search_competitors_tool")]
+
     state = {
         "query": "analise CRM Brasil",
         "research_result": None,
         "analysis_result": None,
         "report": None,
         "next": "",
+        "phase": "",
         "messages": [],
         "completed_agents": [],
     }
 
-    result = await researcher_node_async(state)
+    mock_client = AsyncMock()
+    mock_client.get_tools = AsyncMock(return_value=mock_tools)
 
-    # Deve retornar research_result como string nao vazia
+    mock_agent = MagicMock()
+    mock_agent.ainvoke = AsyncMock(return_value=mock_agent_result)
+
+    with patch("src.agents.researcher.agent.MultiServerMCPClient", return_value=mock_client), \
+         patch("src.agents.researcher.agent.create_react_agent", return_value=mock_agent):
+        from src.agents.researcher.agent import researcher_node_async
+        result = await researcher_node_async(state)
+
     assert "research_result" in result
     assert isinstance(result["research_result"], str)
     assert len(result["research_result"]) > 0
-
-    # Deve retornar messages como lista
     assert "messages" in result
     assert isinstance(result["messages"], list)

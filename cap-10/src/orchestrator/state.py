@@ -10,5 +10,6 @@ class MarketIntelligenceState(TypedDict):
     analysis_result: Optional[str]
     report: Optional[str]
     next: str
+    phase: str
     messages: Annotated[list, operator.add]
     completed_agents: Annotated[list, operator.add]

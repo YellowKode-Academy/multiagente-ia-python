@@ -1,7 +1,7 @@
 # src/orchestrator/graph.py - versao cap-08/10
 from langgraph.graph import StateGraph, END
 from .state import MarketIntelligenceState
-from .supervisor import supervisor_node_fanout
+from .supervisor import supervisor_node, route_after_supervisor
 from .aggregator import aggregator_node
 from src.agents.researcher.agent import researcher_node
 from src.agents.analyzer.agent import analyzer_node
@@ -15,16 +15,13 @@ def route_aggregator(state: MarketIntelligenceState) -> str:
 def build_graph() -> StateGraph:
     workflow = StateGraph(MarketIntelligenceState)
 
-    workflow.add_node("supervisor", supervisor_node_fanout)
+    workflow.add_node("supervisor", supervisor_node)
     workflow.add_node("researcher", researcher_node)
     workflow.add_node("analyzer", analyzer_node)
     workflow.add_node("aggregator", aggregator_node)
     workflow.add_node("reporter", reporter_node)
 
     workflow.set_entry_point("supervisor")
-
-    def route_after_supervisor(state: MarketIntelligenceState):
-        return state.get("next", "finish")
 
     workflow.add_conditional_edges(
         "supervisor",

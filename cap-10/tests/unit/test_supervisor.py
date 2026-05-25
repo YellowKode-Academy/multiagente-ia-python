@@ -1,31 +1,38 @@
 # tests/unit/test_supervisor.py
 import pytest
 from langgraph.types import Send
-from src.orchestrator.supervisor import supervisor_node_fanout
+from src.orchestrator.supervisor import supervisor_node, route_after_supervisor
+
+# backward-compat alias used in some tests
+supervisor_node_fanout = supervisor_node
 
 
 class TestSupervisorRouting:
     """Testa o roteamento do supervisor baseado no estado."""
 
     def test_initial_state_returns_fanout(self):
-        """Estado vazio deve retornar fan-out paralelo."""
+        """Estado vazio: supervisor_node define phase=fanout, route retorna Send list."""
         state = {
             "query": "analise SaaS CRM Brasil",
             "research_result": None,
             "analysis_result": None,
             "report": None,
             "next": "",
+            "phase": "",
             "messages": [],
             "completed_agents": [],
         }
 
-        result = supervisor_node_fanout(state)
+        # Node sets phase
+        node_result = supervisor_node(state)
+        assert node_result.get("phase") == "fanout"
 
-        # Deve retornar lista de Send()
+        # Routing function returns Send list
+        updated_state = {**state, **node_result}
+        result = route_after_supervisor(updated_state)
+
         assert isinstance(result, list)
         assert len(result) == 2
-
-        # Verificar os alvos do Send()
         targets = [send.node for send in result]
         assert "researcher" in targets
         assert "analyzer" in targets
@@ -38,13 +45,13 @@ class TestSupervisorRouting:
             "analysis_result": '{"scored_competitors": [...]}',
             "report": None,
             "next": "",
+            "phase": "",
             "messages": [],
             "completed_agents": [],
         }
 
         result = supervisor_node_fanout(state)
 
-        # Deve retornar dict com next="reporter"
         assert isinstance(result, dict)
         assert result.get("next") == "reporter"
 
@@ -56,6 +63,7 @@ class TestSupervisorRouting:
             "analysis_result": '{"scored_competitors": [...]}',
             "report": "# Relatorio...",
             "next": "",
+            "phase": "",
             "messages": [],
             "completed_agents": [],
         }
@@ -73,13 +81,12 @@ class TestSupervisorRouting:
             "analysis_result": None,
             "report": None,
             "next": "",
+            "phase": "",
             "messages": [],
             "completed_agents": [],
         }
 
         result = supervisor_node_fanout(state)
 
-        # Com apenas research_result, supervisor nao deve avancar para reporter
-        # Deve aguardar analysis_result
         if isinstance(result, dict):
             assert result.get("next") != "reporter"

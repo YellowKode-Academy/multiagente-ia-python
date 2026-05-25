@@ -14,10 +14,10 @@ MCP_SERVER_CONFIG = {"analysis": {"url": os.getenv("ANALYSIS_MCP_URL", "http://l
 async def analyzer_node_async(state: dict) -> dict:
     query = state.get("query", "")
     research_data = state.get("research_result", "")
-    async with MultiServerMCPClient(MCP_SERVER_CONFIG) as client:
-        tools = client.get_tools()
-        agent = create_react_agent(model=llm, tools=tools, state_modifier=ANALYZER_SYSTEM_PROMPT)
-        result = await agent.ainvoke({"messages": [HumanMessage(content=f"Analise '{query}'.\n\n{research_data}")]})
+    client = MultiServerMCPClient(MCP_SERVER_CONFIG)
+    tools = await client.get_tools()
+    agent = create_react_agent(model=llm, tools=tools, state_modifier=ANALYZER_SYSTEM_PROMPT)
+    result = await agent.ainvoke({"messages": [HumanMessage(content=f"Analise '{query}'.\n\n{research_data}")]})
     return {"analysis_result": result["messages"][-1].content, "messages": result["messages"], "completed_agents": ["analyzer"]}
 
 

@@ -37,20 +37,20 @@ async def analyzer_node_async(state: MarketIntelligenceState) -> dict:
     research_data = state.get("research_result", "")
     query = state.get("query", "")
 
-    async with MultiServerMCPClient(MCP_SERVER_CONFIG) as client:
-        tools = client.get_tools()
+    client = MultiServerMCPClient(MCP_SERVER_CONFIG)
+    tools = await client.get_tools()
 
-        agent = create_react_agent(
-            model=llm,
-            tools=tools,
-            state_modifier=ANALYZER_SYSTEM_PROMPT,
-        )
+    agent = create_react_agent(
+        model=llm,
+        tools=tools,
+        state_modifier=ANALYZER_SYSTEM_PROMPT,
+    )
 
-        result = await agent.ainvoke({
-            "messages": [HumanMessage(
-                content=f"Analise estes dados de pesquisa para o mercado '{query}':\n\n{research_data}"
-            )]
-        })
+    result = await agent.ainvoke({
+        "messages": [HumanMessage(
+            content=f"Analise estes dados de pesquisa para o mercado '{query}':\n\n{research_data}"
+        )]
+    })
 
     analysis_result = result["messages"][-1].content
 

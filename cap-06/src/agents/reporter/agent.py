@@ -35,18 +35,18 @@ async def reporter_node_async(state: MarketIntelligenceState) -> dict:
     analysis_data = state.get("analysis_result", "")
     query = state.get("query", "analise de mercado")
 
-    async with MultiServerMCPClient(MCP_SERVER_CONFIG) as client:
-        tools = client.get_tools()
+    client = MultiServerMCPClient(MCP_SERVER_CONFIG)
+    tools = await client.get_tools()
 
-        agent = create_react_agent(
-            model=llm,
-            tools=tools,
-            state_modifier=REPORTER_SYSTEM_PROMPT,
-        )
+    agent = create_react_agent(
+        model=llm,
+        tools=tools,
+        state_modifier=REPORTER_SYSTEM_PROMPT,
+    )
 
-        result = await agent.ainvoke({
-            "messages": [HumanMessage(
-                content=f"""Gere o relatorio final para:
+    result = await agent.ainvoke({
+        "messages": [HumanMessage(
+            content=f"""Gere o relatorio final para:
 
 Query original: {query}
 

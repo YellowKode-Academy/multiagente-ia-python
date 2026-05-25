@@ -31,10 +31,10 @@ MCP_SERVER_CONFIG = {
 
 async def researcher_node_async(state: MarketIntelligenceState) -> dict:
     query = state["query"]
-    async with MultiServerMCPClient(MCP_SERVER_CONFIG) as client:
-        tools = client.get_tools()
-        agent = create_react_agent(model=llm, tools=tools, state_modifier=RESEARCHER_SYSTEM_PROMPT)
-        result = await agent.ainvoke({"messages": [HumanMessage(content=f"Pesquise: {query}")]})
+    client = MultiServerMCPClient(MCP_SERVER_CONFIG)
+    tools = await client.get_tools()
+    agent = create_react_agent(model=llm, tools=tools, state_modifier=RESEARCHER_SYSTEM_PROMPT)
+    result = await agent.ainvoke({"messages": [HumanMessage(content=f"Pesquise: {query}")]})
     return {"research_result": result["messages"][-1].content, "messages": result["messages"]}
 
 
