@@ -1,7 +1,7 @@
 # src/agents/analyzer/mcp_server/tools/scorer.py
 import json
 from typing import Optional
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class CompetitorInput(BaseModel):
@@ -11,12 +11,13 @@ class CompetitorInput(BaseModel):
     funding_stage: Optional[str] = None
     founded_year: Optional[int] = None
 
-    @validator("market_presence")
+    @field_validator("market_presence", mode="before")
+    @classmethod
     def validate_presence(cls, v):
-        valid = {"alta", "media", "media", "baixa"}
-        if v.lower() not in valid:
+        valid = {"alta", "media", "baixa"}
+        if str(v).lower() not in valid:
             return "media"  # fallback seguro
-        return v.lower()
+        return str(v).lower()
 
 
 def score_competitor(
@@ -37,7 +38,6 @@ def score_competitor(
     # Market presence base score
     presence_scores = {
         "alta": 40,
-        "media": 24,
         "media": 24,
         "baixa": 8,
     }

@@ -2,7 +2,7 @@
 # (identico ao cap-05 - copiado para manter cap-10 autocontido)
 import json
 from typing import Optional
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 
 class CompetitorInput(BaseModel):
@@ -12,12 +12,13 @@ class CompetitorInput(BaseModel):
     funding_stage: Optional[str] = None
     founded_year: Optional[int] = None
 
-    @validator("market_presence")
+    @field_validator("market_presence", mode="before")
+    @classmethod
     def validate_presence(cls, v):
         valid = {"alta", "media", "baixa"}
-        if v.lower() not in valid:
+        if str(v).lower() not in valid:
             return "media"
-        return v.lower()
+        return str(v).lower()
 
 
 def score_competitor(

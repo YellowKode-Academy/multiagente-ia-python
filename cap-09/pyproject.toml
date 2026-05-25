@@ -1,14 +1,15 @@
 [project]
-name = "market-intelligence-system"
+name = "market-intelligence-system-cap09"
 version = "0.1.0"
 requires-python = ">=3.11"
 dependencies = [
     "langgraph>=0.3",
     "langchain-anthropic>=0.3",
     "langchain-mcp-adapters>=0.1",
+    "fastmcp>=2.0",
     "langfuse>=3.0",
-    "fastapi>=0.115",
-    "uvicorn>=0.32",
+    "httpx>=0.27",
+    "pydantic>=2.0",
     "python-dotenv>=1.0",
 ]
 
@@ -16,7 +17,6 @@ dependencies = [
 test = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
-    "httpx>=0.27",
     "respx>=0.21",
 ]
 

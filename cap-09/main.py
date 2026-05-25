@@ -33,9 +33,8 @@ def main():
     )
     elapsed = time.time() - start
 
-    # Flush para garantir que os dados foram enviados ao Langfuse
-    if run_config.get("callbacks"):
-        run_config["callbacks"][0].flush()
+    # langfuse v3+: o flush e gerenciado automaticamente pelo cliente global
+    # Nao e necessario chamar flush() manualmente no CallbackHandler
 
     print(f"\nStatus: {result.get('next')}")
     print(f"Tempo total: {elapsed:.1f}s")

@@ -10,9 +10,9 @@ RUN pip install --no-cache-dir \
     "langgraph>=0.3" \
     "langchain-anthropic>=0.3" \
     "langchain-mcp-adapters>=0.1" \
-    "langfuse>=2.0" \
+    "langfuse>=3.0" \
     "fastapi>=0.115" \
-    "uvicorn>=0.30" \
+    "uvicorn>=0.32" \
     "python-dotenv>=1.0"
 
 # Copiar codigo
