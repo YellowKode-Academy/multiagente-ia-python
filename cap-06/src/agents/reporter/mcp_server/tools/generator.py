@@ -63,7 +63,7 @@ def format_competitor_table(scored_competitors_json: str) -> str:
 
     rows = []
     for c in competitors:
-        threat_label = {"alta": "Alta", "media": "Media", "media": "Media", "baixa": "Baixa"}.get(
+        threat_label = {"alta": "Alta", "media": "Media", "baixa": "Baixa"}.get(
             c.get("threat_level", "media"), "N/A"
         )
         rows.append(
